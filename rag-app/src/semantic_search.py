@@ -19,7 +19,7 @@ def semantic_search():
     with open("outputs/embedded_chunks.json", "r") as f:
         data = json.load(f)
     for d in data:
-        cos_similarity = cosine_similarity([embedded_query], [d["embedding"]]) #cosine_similarity returns 1x1 matrix of a score
+        cos_similarity = cosine_similarity([embedded_query], [d["embedding"]])[0][0] #cosine_similarity returns 1x1 matrix of a score
         d["cos_score"] = cos_similarity.tolist()
     ranked = sorted(data, key=lambda data: data["cos_score"], reverse=True) 
     for i in range(k):
@@ -27,10 +27,9 @@ def semantic_search():
     result_rank = 0
     for each_k in top_k:
         result_rank += 1
-        score = cos_similarity[0][0]
         source = each_k["source"]
         text = each_k["text"]
-        print(f"Result: {result_rank}\nScore: {score} \nSource: {source} \nText: {text}")
+        print(f"Result: {result_rank}\nScore: {cos_similarity} \nSource: {source} \nText: {text}")
         
 retrieve = semantic_search()
 print(retrieve)  
