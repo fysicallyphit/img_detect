@@ -1,8 +1,6 @@
-# user inputs sentence and k 
-# loop through embedded_chunks.json and calculate cos similarity
-# return top k chunks
 import json
 from sklearn.metrics.pairwise import cosine_similarity
+from openai import OpenAI
 from sentence_transformers import SentenceTransformer
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
@@ -33,3 +31,10 @@ def semantic_search():
         
 retrieve = semantic_search()
 print(retrieve)  
+
+client = OpenAI()
+
+response = client.responses.create(
+    model = "gpt-5.4",
+    input = "hi"
+)
