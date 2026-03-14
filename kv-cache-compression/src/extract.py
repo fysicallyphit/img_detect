@@ -1,32 +1,43 @@
-import numpy as np
-import matplotlib.pyplot as plt
 from transformers import AutoTokenizer, AutoModel
+
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 model = AutoModel.from_pretrained("bert-base-uncased")
 
-K_matrices = []
+def extract_qkv():
+    Q_matrices = []
+    K_matrices = []
+    V_matrices = []
 
-def hook_fn(module, input, output):
-    K_matrices.append(output)    
+    def hook_Q(module, input, output):
+        Q_matrices.append(output) 
 
-model.encoder.layer[0].attention.self.key.register_forward_hook(hook_fn)
+    def hook_K(module, input, output):
+        K_matrices.append(output)
 
-inputs = tokenizer("the quick brown fox jumped over the lazy dog" * 20,  return_tensors ="pt")
-K_matrices.clear() 
-outputs = model(**inputs)
-seq_len = inputs["input_ids"].shape[1]
-print(seq_len)
+    def hook_V(module, input, output):
+        V_matrices.append(output)  
+            
+    model.encoder.layer[0].attention.self.query.register_forward_hook(hook_Q)
+    model.encoder.layer[0].attention.self.key.register_forward_hook(hook_K)
+    model.encoder.layer[0].attention.self.value.register_forward_hook(hook_V)
 
-K = K_matrices[0]
-K = K.reshape(1, seq_len, 12, 64).transpose(1,2)
-K_head = K[0,0,:,:].detach().numpy()
+    inputs = tokenizer("the quick brown fox jumped over the lazy dog" * 20,  return_tensors ="pt")
+    K_matrices.clear() 
+    V_matrices.clear()
+    Q_matrices.clear() 
+    outputs = model(**inputs)
+    seq_len = inputs["input_ids"].shape[1]
 
-U, S, Vt = np.linalg.svd(K_head, full_matrices = False)
-#plt.plot(S)
-#plt.show() # see how fast S decays
+    Q = Q_matrices[0]
+    Q = Q.reshape(1, seq_len, 12, 64).transpose(1,2)
+    Q_head = Q[0,0,:,:].detach().numpy()
 
-for r in [1, 2, 4, 8, 16, 32, 64]:
-    K_new = U[:, :r] @ np.diag(S[:r]) @ Vt[:r, :]
-    error = np.linalg.norm(K_head - K_new)
-    print(r, error)
+    K = K_matrices[0]
+    K = K.reshape(1, seq_len, 12, 64).transpose(1,2)
+    K_head = K[0,0,:,:].detach().numpy()
 
+    V = V_matrices[0]
+    V = V.reshape(1, seq_len, 12, 64).transpose(1,2)
+    V_head = V[0,0,:,:].detach().numpy()
+
+    return outputs, Q_head, K_head, V_head
