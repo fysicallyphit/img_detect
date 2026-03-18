@@ -10,6 +10,3 @@ def compute_svd(K_layers, V_layers):
         svd_V.append((Uv, Sv, Vtv))
     return svd_K, svd_V
 
-    #plt.plot(Sk)
-    #plt.plot(Sv)
-    #plt.show() # see how fast S decays

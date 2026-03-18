@@ -72,7 +72,6 @@ plt.plot(adapted_rs)
 plt.xlabel("Layers")
 plt.ylabel("Rank")
 plt.title("Adaptive Rank per Layer")
-plt.legend()
 plt.show()
 
 # plt.scatter(compressed_KV_memories, attention_errors, label="compressed")
