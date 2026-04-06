@@ -114,6 +114,7 @@ def _label_to_name(label_id: int) -> str:
     return f"class_{label_id}"
 
 
+
 def detect_obj(image_path):
     model = models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
     model.eval()
