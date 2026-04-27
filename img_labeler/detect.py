@@ -1,13 +1,3 @@
-# import depenedencies
-# coco classes
-# function
-    # import model and transform as tensor
-    # transform image
-    # inference prediction
-    # drawing ! 
-    # for each object, draw a box and add label + confidence score
-    # image show
-
 import torch
 from PIL import Image, ImageDraw
 from torchvision import models, transforms
@@ -112,8 +102,6 @@ def _label_to_name(label_id: int) -> str:
     if 0 <= label_id < len(COCO_CLASSES):
         return COCO_CLASSES[label_id]
     return f"class_{label_id}"
-
-
 
 def detect_obj(image_path):
     model = models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
